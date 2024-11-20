@@ -1,0 +1,65 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #f0f0f0;
+  }
+
+  #puzzle-container {
+    width: 400px;
+    height: 400px;
+    position: relative;
+    margin: 20px;
+    border: 2px solid #333;
+    background: url("background.png") no-repeat;
+    background-size: cover;
+  }
+
+  .puzzle-piece {
+    width: 96px;
+    height: 96px;
+    position: absolute;
+    border: 2px solid black;
+    font-size: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.8);
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .movablepiece {
+    border-color: red;
+    color: #006600;
+    text-decoration: underline;
+  }
+
+  #controls {
+    margin: 20px;
+  }
+
+  button {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+  }
+
+  button:hover {
+    background-color: #45a049;
+  }
+
+  #game-info {
+    margin: 10px;
+    text-align: center;
+  }
+
+  .validators {
+    text-align: right;
+    margin: 20px;
+  }
