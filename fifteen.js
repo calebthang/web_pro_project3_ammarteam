@@ -1,194 +1,242 @@
-// fifteen.js - Implementation of the Fifteen Puzzle game
+/*jslint browser: true, long: true */
+/*global window */
 
-class FifteenPuzzle {
-    constructor() {
-        this.boardSize = 4;
-        this.tileSize = 100;
-        this.moves = 0;
-        this.gameStarted = false;
-        this.timerInterval = null;
-        this.startTime = null;
-        this.emptyTile = { row: 3, col: 3 }; 
-        this.initializeBoard();
-        this.initializeEventListeners();
-    }
+var createFifteenPuzzle;
 
-    initializeBoard() {
-        this.board = Array.from({ length: this.boardSize }, (_, row) =>
-            Array.from({ length: this.boardSize }, (_, col) => {
-                const value = row * this.boardSize + col + 1;
-                return value === 16 ? null : value;
-            })
-        );
+createFifteenPuzzle = function () {
+    function Game() {
+        var boardSize;
+        var tileSize;
+        var moves;
+        var gameStarted;
+        var timerInterval;
+        var startTime;
+        var emptyTile;
+        var board;
+        function isMovable(row, col) {
+            var rowDiff = Math.abs(row - emptyTile.row);
+            var colDiff = Math.abs(col - emptyTile.col);
+            return (rowDiff === 1 && col === emptyTile.col) || (colDiff === 1 && row === emptyTile.row);
+        }
 
-        this.renderBoard();
-        this.updateMoveableState();
-    }
-
-    renderBoard() {
-        const container = document.getElementById('puzzle-container');
-        container.innerHTML = '';
-
-        for (let row = 0; row < this.boardSize; row++) {
-            for (let col = 0; col < this.boardSize; col++) {
-                const value = this.board[row][col];
-                if (value !== null) {
-                    const tile = document.createElement('div');
-                    tile.className = 'puzzle-piece';
-                    tile.textContent = value;
-                    tile.style.left = (col * this.tileSize) + 'px';
-                    tile.style.top = (row * this.tileSize) + 'px';
-                    tile.style.backgroundPosition = 
-                        `${-col * this.tileSize}px ${-row * this.tileSize}px`;
-                    tile.dataset.row = row;
-                    tile.dataset.col = col;
-                    
-                    container.appendChild(tile);
+        function updateMoveableState() {
+            var pieces = document.querySelectorAll(".puzzle-piece");
+            pieces.forEach(function (piece) {
+                var row = parseInt(piece.dataset.row, 10);
+                var col = parseInt(piece.dataset.col, 10);
+                if (isMovable(row, col)) {
+                    piece.classList.add("movablepiece");
+                } else {
+                    piece.classList.remove("movablepiece");
                 }
-            }
+            });
         }
-    }
 
-    initializeEventListeners() {
-        const container = document.getElementById('puzzle-container');
-        container.addEventListener('click', (e) => this.handleTileClick(e));
-        
-        document.getElementById('shuffle').addEventListener('click', 
-            () => this.shuffle());
-
-        // Add mouseover/mouseout events for movable pieces
-        container.addEventListener('mouseover', (e) => {
-            if (e.target.classList.contains('puzzle-piece')) {
-                this.updateMoveableState();
-            }
-        });
-    }
-
-    isMovable(row, col) {
-        return (
-            (Math.abs(row - this.emptyTile.row) === 1 && col === this.emptyTile.col) ||
-            (Math.abs(col - this.emptyTile.col) === 1 && row === this.emptyTile.row)
-        );
-    }
-
-    updateMoveableState() {
-        const pieces = document.querySelectorAll('.puzzle-piece');
-        pieces.forEach(piece => {
-            const row = parseInt(piece.dataset.row);
-            const col = parseInt(piece.dataset.col);
-            if (this.isMovable(row, col)) {
-                piece.classList.add('movablepiece');
-            } else {
-                piece.classList.remove('movablepiece');
-            }
-        });
-    }
-
-    handleTileClick(e) {
-        if (!e.target.classList.contains('puzzle-piece')) return;
-
-        const row = parseInt(e.target.dataset.row);
-        const col = parseInt(e.target.dataset.col);
-
-        if (this.isMovable(row, col)) {
-            this.moveTile(row, col);
-            this.moves++;
-            document.getElementById('moves').textContent = `Moves: ${this.moves}`;
-            
-            if (!this.gameStarted) {
-                this.startTimer();
-                this.gameStarted = true;
-            }
-
-            if (this.checkWin()) {
-                this.handleWin();
-            }
-        }
-    }
-
-    moveTile(row, col) {
-        // Swap the tile with empty space
-        const value = this.board[row][col];
-        this.board[row][col] = null;
-        this.board[this.emptyTile.row][this.emptyTile.col] = value;
-
-        // Update empty tile position
-        const oldEmpty = { ...this.emptyTile };
-        this.emptyTile = { row, col };
-
-        // Update the visual position of the tile
-        this.renderBoard();
-        this.updateMoveableState();
-    }
-
-    shuffle() {
-        // Reset game state
-        this.moves = 0;
-        this.gameStarted = false;
-        document.getElementById('moves').textContent = 'Moves: 0';
-        this.stopTimer();
-
-        // Perform random moves
-        for (let i = 0; i < 200; i++) {
-            const movableTiles = [];
-            for (let row = 0; row < this.boardSize; row++) {
-                for (let col = 0; col < this.boardSize; col++) {
-                    if (this.isMovable(row, col) && this.board[row][col] !== null) {
-                        movableTiles.push({ row, col });
+        function renderBoard() {
+            var container = document.getElementById("puzzle-container");
+            var i;
+            var j;
+            var value;
+            var tile;
+            container.innerHTML = "";
+            i = 0;
+            while (i < boardSize) {
+                j = 0;
+                while (j < boardSize) {
+                    value = board[i][j];
+                    if (value !== null) {
+                        tile = document.createElement("div");
+                        tile.className = "puzzle-piece";
+                        tile.textContent = value;
+                        tile.style.left = String(j * tileSize) + "px";
+                        tile.style.top = String(i * tileSize) + "px";
+                        tile.style.backgroundPosition = String(-j * tileSize) + "px " + String(-i * tileSize) + "px";
+                        tile.dataset.row = i;
+                        tile.dataset.col = j;
+                        container.appendChild(tile);
                     }
+                    j += 1;
                 }
-            }
-            const randomTile = movableTiles[
-                Math.floor(Math.random() * movableTiles.length)
-            ];
-            this.moveTile(randomTile.row, randomTile.col);
-        }
-    }
-
-    checkWin() {
-        let count = 1;
-        for (let row = 0; row < this.boardSize; row++) {
-            for (let col = 0; col < this.boardSize; col++) {
-                if (row === this.boardSize - 1 && 
-                    col === this.boardSize - 1) {
-                    return this.board[row][col] === null;
-                }
-                if (this.board[row][col] !== count) {
-                    return false;
-                }
-                count++;
+                i += 1;
             }
         }
-        return true;
-    }
 
-    startTimer() {
-        this.startTime = Date.now();
-        this.timerInterval = setInterval(() => {
-            const elapsed = Math.floor((Date.now() - this.startTime) / 1000);
-            const minutes = Math.floor(elapsed / 60);
-            const seconds = elapsed % 60;
-            document.getElementById('timer').textContent = 
-                `Time: ${minutes}:${seconds.toString().padStart(2, '0')}`;
-        }, 1000);
-    }
-
-    stopTimer() {
-        if (this.timerInterval) {
-            clearInterval(this.timerInterval);
-            this.timerInterval = null;
+        function moveTile(row, col) {
+            var value = board[row][col];
+            board[row][col] = null;
+            board[emptyTile.row][emptyTile.col] = value;
+            emptyTile = {
+                "col": col,
+                "row": row
+            };
+            renderBoard();
+            updateMoveableState();
         }
-        document.getElementById('timer').textContent = 'Time: 0:00';
+
+        function stopTimer() {
+            if (timerInterval) {
+                window.clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            document.getElementById("timer").textContent = "Time: 0:00";
+        }
+
+        function handleWin() {
+            var message = String("Congratulations! You solved the puzzle in ") + String(moves) + " moves!";
+            stopTimer();
+            gameStarted = false;
+            window.alert(message);
+        }
+
+        function checkWin() {
+            var count = 1;
+            var row;
+            var col;
+            row = 0;
+            while (row < boardSize) {
+                col = 0;
+                while (col < boardSize) {
+                    if (row === boardSize - 1 && col === boardSize - 1) {
+                        return board[row][col] === null;
+                    }
+                    if (board[row][col] !== count) {
+                        return false;
+                    }
+                    count += 1;
+                    col += 1;
+                }
+                row += 1;
+            }
+            return true;
+        }
+
+        function startTimer() {
+            startTime = Date.now();
+            timerInterval = window.setInterval(function () {
+                var elapsed = Math.floor((Date.now() - startTime) / 1000);
+                var minutes = Math.floor(elapsed / 60);
+                var seconds = elapsed % 60;
+                var timeText = "Time: " + String(minutes) + ":" + String(seconds).padStart(2, "0");
+                document.getElementById("timer").textContent = timeText;
+            }, 1000);
+        }
+
+        function handleTileClick(e) {
+            var row;
+            var col;
+
+            if (!e.target.classList.contains("puzzle-piece")) {
+                return;
+            }
+
+            row = parseInt(e.target.dataset.row, 10);
+            col = parseInt(e.target.dataset.col, 10);
+
+            if (isMovable(row, col)) {
+                moveTile(row, col);
+                moves += 1;
+                document.getElementById("moves").textContent = "Moves: " + String(moves);
+                if (!gameStarted) {
+                    startTimer();
+                    gameStarted = true;
+                }
+                if (checkWin()) {
+                    handleWin();
+                }
+            }
+        }
+
+        function shuffle() {
+            var i;
+            var row;
+            var col;
+            var movableTiles;
+            var randomIndex;
+            var randomTile;
+
+            moves = 0;
+            gameStarted = false;
+            document.getElementById("moves").textContent = "Moves: 0";
+            stopTimer();
+
+            i = 0;
+            while (i < 200) {
+                movableTiles = [];
+                row = 0;
+                while (row < boardSize) {
+                    col = 0;
+                    while (col < boardSize) {
+                        if (isMovable(row, col) && board[row][col] !== null) {
+                            movableTiles.push({
+                                "col": col,
+                                "row": row
+                            });
+                        }
+                        col += 1;
+                    }
+                    row += 1;
+                }
+                randomIndex = Math.floor(Math.random() * movableTiles.length);
+                randomTile = movableTiles[randomIndex];
+                moveTile(randomTile.row, randomTile.col);
+                i += 1;
+            }
+        }
+
+        function initializeBoard() {
+            var row;
+            var col;
+            board = [];
+            row = 0;
+            while (row < boardSize) {
+                board[row] = [];
+                col = 0;
+                while (col < boardSize) {
+                    board[row][col] = row * boardSize + col + 1;
+                    if (row === boardSize - 1 && col === boardSize - 1) {
+                        board[row][col] = null;
+                    }
+                    col += 1;
+                }
+                row += 1;
+            }
+            renderBoard();
+            updateMoveableState();
+        }
+
+        function initializeEventListeners() {
+            var container = document.getElementById("puzzle-container");
+            var shuffleButton = document.getElementById("shuffle");
+            container.addEventListener("click", handleTileClick);
+            shuffleButton.addEventListener("click", shuffle);
+            container.addEventListener("mouseover", function (e) {
+                if (e.target.classList.contains("puzzle-piece")) {
+                    updateMoveableState();
+                }
+            });
+        }
+
+        function init() {
+            boardSize = 4;
+            tileSize = 100;
+            moves = 0;
+            gameStarted = false;
+            timerInterval = null;
+            startTime = null;
+            emptyTile = {
+                "col": 3,
+                "row": 3
+            };
+            initializeBoard();
+            initializeEventListeners();
+        }
+
+        init();
     }
 
-    handleWin() {
-        this.stopTimer();
-        this.gameStarted = false;
-        alert(`Congratulations! You solved the puzzle in ${this.moves} moves!`);
-    }
-}
+    return Game;
+};
 
-// Initialize the game when the page loads
-window.onload = () => {
-    const game = new FifteenPuzzle();
+window.onload = function () {
+    new(createFifteenPuzzle())();
 };
