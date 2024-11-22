@@ -13,10 +13,14 @@ createFifteenPuzzle = function () {
         var startTime;
         var emptyTile;
         var board;
+        var bestMoves;
+        var bestTime;
+        
         function isMovable(row, col) {
             var rowDiff = Math.abs(row - emptyTile.row);
             var colDiff = Math.abs(col - emptyTile.col);
-            return (rowDiff === 1 && col === emptyTile.col) || (colDiff === 1 && row === emptyTile.row);
+            return (rowDiff === 1 && col === emptyTile.col) ||
+                (colDiff === 1 && row === emptyTile.row);
         }
 
         function updateMoveableState() {
@@ -50,7 +54,9 @@ createFifteenPuzzle = function () {
                         tile.textContent = value;
                         tile.style.left = String(j * tileSize) + "px";
                         tile.style.top = String(i * tileSize) + "px";
-                        tile.style.backgroundPosition = String(-j * tileSize) + "px " + String(-i * tileSize) + "px";
+                        tile.style.backgroundPosition = 
+                            String(-j * tileSize) + "px " + 
+                            String(-i * tileSize) + "px";
                         tile.dataset.row = i;
                         tile.dataset.col = j;
                         container.appendChild(tile);
@@ -61,16 +67,28 @@ createFifteenPuzzle = function () {
             }
         }
 
-        function moveTile(row, col) {
-            var value = board[row][col];
-            board[row][col] = null;
-            board[emptyTile.row][emptyTile.col] = value;
-            emptyTile = {
-                "col": col,
-                "row": row
-            };
-            renderBoard();
-            updateMoveableState();
+        function updateStats() {
+            document.getElementById("moves").textContent = 
+                "Moves: " + String(moves);
+            
+            if (startTime) {
+                var currentTime = Math.floor((Date.now() - startTime) / 1000);
+                var minutes = Math.floor(currentTime / 60);
+                var seconds = currentTime % 60;
+                document.getElementById("timer").textContent = 
+                    "Time: " + String(minutes) + ":" + 
+                    String(seconds).padStart(2, "0");
+            }
+        }
+
+        function startTimer() {
+            if (timerInterval) {
+                return;
+            }
+            startTime = Date.now();
+            timerInterval = window.setInterval(function () {
+                updateStats();
+            }, 1000);
         }
 
         function stopTimer() {
@@ -78,13 +96,34 @@ createFifteenPuzzle = function () {
                 window.clearInterval(timerInterval);
                 timerInterval = null;
             }
+            startTime = null;
             document.getElementById("timer").textContent = "Time: 0:00";
         }
 
+        function formatTime(totalSeconds) {
+            var minutes = Math.floor(totalSeconds / 60);
+            var seconds = totalSeconds % 60;
+            return String(minutes) + ":" + String(seconds).padStart(2, "0");
+        }
+
         function handleWin() {
-            var message = String("Congratulations! You solved the puzzle in ") + String(moves) + " moves!";
+            var currentTime = Math.floor((Date.now() - startTime) / 1000);
             stopTimer();
             gameStarted = false;
+            
+            if (!bestTime || currentTime < bestTime) {
+                bestTime = currentTime;
+            }
+            if (!bestMoves || moves < bestMoves) {
+                bestMoves = moves;
+            }
+
+            var message = String("Congratulations! Puzzle solved!\n") +
+                "Time: " + formatTime(currentTime) + "\n" +
+                "Moves: " + String(moves) + "\n\n" +
+                "Best Time: " + formatTime(bestTime) + "\n" +
+                "Best Moves: " + String(bestMoves);
+            
             window.alert(message);
         }
 
@@ -110,15 +149,16 @@ createFifteenPuzzle = function () {
             return true;
         }
 
-        function startTimer() {
-            startTime = Date.now();
-            timerInterval = window.setInterval(function () {
-                var elapsed = Math.floor((Date.now() - startTime) / 1000);
-                var minutes = Math.floor(elapsed / 60);
-                var seconds = elapsed % 60;
-                var timeText = "Time: " + String(minutes) + ":" + String(seconds).padStart(2, "0");
-                document.getElementById("timer").textContent = timeText;
-            }, 1000);
+        function moveTile(row, col) {
+            var value = board[row][col];
+            board[row][col] = null;
+            board[emptyTile.row][emptyTile.col] = value;
+            emptyTile = {
+                "col": col,
+                "row": row
+            };
+            renderBoard();
+            updateMoveableState();
         }
 
         function handleTileClick(e) {
@@ -135,11 +175,13 @@ createFifteenPuzzle = function () {
             if (isMovable(row, col)) {
                 moveTile(row, col);
                 moves += 1;
-                document.getElementById("moves").textContent = "Moves: " + String(moves);
+                updateStats();
+                
                 if (!gameStarted) {
-                    startTimer();
                     gameStarted = true;
+                    startTimer();
                 }
+
                 if (checkWin()) {
                     handleWin();
                 }
@@ -156,7 +198,6 @@ createFifteenPuzzle = function () {
 
             moves = 0;
             gameStarted = false;
-            document.getElementById("moves").textContent = "Moves: 0";
             stopTimer();
 
             i = 0;
@@ -176,11 +217,14 @@ createFifteenPuzzle = function () {
                     }
                     row += 1;
                 }
+                
                 randomIndex = Math.floor(Math.random() * movableTiles.length);
                 randomTile = movableTiles[randomIndex];
                 moveTile(randomTile.row, randomTile.col);
                 i += 1;
             }
+            
+            updateStats();
         }
 
         function initializeBoard() {
@@ -207,13 +251,20 @@ createFifteenPuzzle = function () {
         function initializeEventListeners() {
             var container = document.getElementById("puzzle-container");
             var shuffleButton = document.getElementById("shuffle");
-            container.addEventListener("click", handleTileClick);
-            shuffleButton.addEventListener("click", shuffle);
-            container.addEventListener("mouseover", function (e) {
-                if (e.target.classList.contains("puzzle-piece")) {
-                    updateMoveableState();
-                }
-            });
+            
+            if (container) {
+                container.addEventListener("click", handleTileClick);
+                container.addEventListener("mouseover", function (e) {
+                    if (e.target.classList.contains("puzzle-piece")) {
+                        updateMoveableState();
+                    }
+                });
+            }
+
+            if (shuffleButton) {
+                shuffleButton.removeEventListener("click", shuffle);
+                shuffleButton.addEventListener("click", shuffle);
+            }
         }
 
         function init() {
@@ -223,12 +274,16 @@ createFifteenPuzzle = function () {
             gameStarted = false;
             timerInterval = null;
             startTime = null;
+            bestMoves = null;
+            bestTime = null;
             emptyTile = {
                 "col": 3,
                 "row": 3
             };
+            
             initializeBoard();
             initializeEventListeners();
+            updateStats();
         }
 
         init();
@@ -238,5 +293,5 @@ createFifteenPuzzle = function () {
 };
 
 window.onload = function () {
-    new(createFifteenPuzzle())();
+    new (createFifteenPuzzle())();
 };

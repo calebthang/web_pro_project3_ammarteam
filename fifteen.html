@@ -3,24 +3,46 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="fifteen.css" />
     <title>Fifteen Puzzle</title>
+    <link href="fifteen.css" rel="stylesheet" />
   </head>
   <body>
     <h1>Fifteen Puzzle</h1>
-    <div id="game-info">
+
+    <p>
+      The goal of the fifteen puzzle is to un-jumble its fifteen squares by
+      repeatedly making moves that slide squares into the empty space. How
+      quickly can you solve it?
+    </p>
+
+    <div id="stats">
       <span id="moves">Moves: 0</span>
       <span id="timer">Time: 0:00</span>
     </div>
+
     <div id="puzzle-container"></div>
+
     <div id="controls">
-      <button id="shuffle">Shuffle</button>
+      <input
+        type="button"
+        id="shuffle"
+        value="Shuffle"
+        onclick="return false;"
+      />
     </div>
+
+    <p class="credit">
+      American puzzle author and mathematician Sam Loyd is often falsely
+      credited with creating the puzzle; indeed, Loyd claimed from 1891 until
+      his death in 1911 that he invented it. The puzzle was actually created
+      around 1874 by Noyes Palmer Chapman, a postmaster in Canastota, New York.
+    </p>
+
     <div class="validators">
-      <a href="https://validator.w3.org/">
-        <img src="https://www.w3.org/Icons/valid-xhtml10" alt="Valid XHTML" />
+      <a href="https://validator.w3.org/check/referer">
+        <img src="https://www.w3.org/Icons/valid-xhtml11" alt="Valid XHTML" />
       </a>
-      <a href="https://jigsaw.w3.org/css-validator/">
+      <a href="https://jigsaw.w3.org/css-validator/check/referer">
         <img
           src="https://jigsaw.w3.org/css-validator/images/vcss"
           alt="Valid CSS"
@@ -29,10 +51,11 @@
       <a href="https://www.jslint.com/">
         <img
           src="http://www.cs.washington.edu/education/courses/cse190m/09sp/images/jslint.png"
-          alt="Valid JS"
+          alt="JavaScript Lint"
         />
       </a>
     </div>
+
     <script src="fifteen.js"></script>
   </body>
 </html>

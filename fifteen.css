@@ -1,65 +1,133 @@
-body {
-    font-family: Arial, sans-serif;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background-color: #f0f0f0;
-  }
 
-  #puzzle-container {
+a img {
+    border: none;
+}
+
+body {
+    font-family: "Times New Roman", serif;
+    font-size: 12pt;
+    background-color: white;
+    color: black;
+    width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    font-family: "Arial", sans-serif;
+    font-size: 16pt;
+    text-align: center;
+    line-height: 1.1em;
+    padding-bottom: 10px;
+    margin-top: 18px;
+    margin-bottom: 0;
+    clear: both;
+}
+
+p {
+    margin-bottom: 8px;
+    margin-top: 8px;
+    page-break-inside: avoid;
+    text-align: justify;
+}
+
+.credit {
+    font-style: none;
+    margin-bottom: 1.5em;
+    text-align: justify;
+}
+
+/* Game-specific styles integrated with shared theme */
+#puzzle-container {
     width: 400px;
     height: 400px;
     position: relative;
-    margin: 20px;
-    border: 2px solid #333;
-    background: url("background.png") no-repeat;
+    margin: 20px auto;
+    border: 1px solid black;
+    background: url('background.png') no-repeat;
     background-size: cover;
-  }
+}
 
-  .puzzle-piece {
+.puzzle-piece {
     width: 96px;
     height: 96px;
     position: absolute;
-    border: 2px solid black;
-    font-size: 32px;
+    border: 1px solid black;
+    font-family: "Times New Roman", serif;
+    font-size: 24pt;
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: rgba(255, 255, 255, 0.8);
     cursor: pointer;
     transition: all 0.3s ease;
-  }
+    background-color: rgba(255, 255, 255, 0.9);
+}
 
-  .movablepiece {
+.movablepiece {
     border-color: red;
-    color: #006600;
+    color: #660000;
     text-decoration: underline;
-  }
+    background-color: #FFEEEE;
+}
 
-  #controls {
-    margin: 20px;
-  }
-
-  button {
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-    background-color: #4caf50;
-    color: white;
-    border: none;
-    border-radius: 5px;
-  }
-
-  button:hover {
-    background-color: #45a049;
-  }
-
-  #game-info {
-    margin: 10px;
+#stats {
+    font-family: "Times New Roman", serif;
+    font-size: 12pt;
     text-align: center;
-  }
+    margin: 10px 0;
+    padding: 5px;
+}
 
-  .validators {
+#stats span {
+    margin: 0 15px;
+    display: inline-block;
+    background-color: #F8F8FF;
+    padding: 5px 15px;
+    border: 1px dashed blue;
+    font-family: "Courier New", monospace;
+    font-size: 95%;
+}
+
+#timer, #moves {
+    min-width: 100px;
+}
+
+#controls {
+    text-align: center;
+    margin: 15px 0;
+}
+
+input[type="button"]#shuffle {
+    font-family: "Arial", sans-serif;
+    font-size: 10pt;
+    padding: 5px 15px;
+    background-color: #F8F8FF;
+    border: 1px dashed blue;
+    cursor: pointer;
+    margin: 10px;
+}
+
+input[type="button"]#shuffle:hover {
+    background-color: #FFEEEE;
+}
+
+/* Validator styles */
+.validators {
+    float: right;
+    margin-left: 1em;
     text-align: right;
-    margin: 20px;
-  }
+}
+
+.validators a {
+    margin-left: 10px;
+}
+
+.validators img {
+    border: none;
+}
+
+/* Remove focus outline while maintaining accessibility */
+input[type="button"]:focus {
+    outline: 1px dashed blue;
+    background-color: #FFEEEE;
+}
